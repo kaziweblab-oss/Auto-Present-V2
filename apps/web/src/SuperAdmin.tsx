@@ -13,6 +13,7 @@ export default function SuperAdminPage() {
   const [dbCurrent, setDbCurrent] = useState('');
   const [dbUri, setDbUri] = useState('');
   const [dbMsg, setDbMsg] = useState('');
+  const [q, setQ] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -41,29 +42,45 @@ export default function SuperAdminPage() {
     } catch (e) { setDbMsg((e as Error).message); }
   }
 
+  const shown = users.filter((u) => `${u.displayName} ${u.email}`.toLowerCase().includes(q.toLowerCase()));
+
   return (
     <div className="shell">
       <aside className="side">
         <div className="brand"><img src="/app-icon.png" alt="app icon" /><div><b>AUTO PRESENT</b><span>Super Admin</span></div></div>
-        <nav><button className="active">Users & Roles</button><button>Audit Logs</button><button>Sessions (read)</button><button>Database</button></nav>
+        <nav><button className="active">Dashboard</button><button>Users</button><button>Roles & Permissions</button><button>Audit Logs</button><button>Database Setup</button><button>Backup & Restore</button></nav>
         <button className="theme" onClick={toggleTheme}>{theme === 'light' ? 'Dark mode' : 'Light mode'}</button>
       </aside>
       <main>
-        <h1>Super Admin</h1>
-        <p className="sub">System config - users, roles, audit. Seeded later via INITIAL_SUPER_ADMIN_EMAIL (DB-backed).</p>
+        <h1>System Overview</h1>
+        <p className="sub">Welcome back, Super Admin. Seeded later via INITIAL_SUPER_ADMIN_EMAIL (DB-backed).</p>
         {error && <p className="err">{error} (API running? demo headers?)</p>}
-        <section><h2>Database {dbConfigured === null ? '' : dbConfigured ? '(connected)' : '(SETUP_NEEDED)'}</h2>
+        <div className="stats">
+          <div className="stat"><small>Total Users</small><h2>{users.length}</h2><span className="tag">in system</span></div>
+          <div className="stat"><small>Total Roles</small><h2>6</h2><span className="tag">RBAC matrix</span></div>
+          <div className="stat"><small>Database</small><h2 style={{ fontSize: 20 }}>{dbConfigured === null ? '…' : dbConfigured ? 'Connected' : 'Setup needed'}</h2><span className="tag">{dbCurrent || 'no uri yet'}</span></div>
+          <div className="stat"><small>Audit Events</small><h2>{logs.length}</h2><span className="tag">recent 200</span></div>
+        </div>
+        <section>
+          <div className="sec-head"><h2>Database Setup</h2></div>
           {dbConfigured === false && <p>Paste the free MongoDB Atlas connection string below. Saved on this server only, never in env/git.</p>}
-          {dbConfigured && dbCurrent && <p className="muted">Current: {dbCurrent} (credentials hidden)</p>}
-          <div className="dbrow"><input value={dbUri} onChange={(e) => setDbUri(e.target.value)} placeholder="mongodb+srv://..." /><button onClick={saveDb}>Connect & Save</button></div>
+          <div className="dbrow"><input value={dbUri} onChange={(e) => setDbUri(e.target.value)} placeholder="mongodb+srv://..." /><button className="btn" onClick={saveDb}>Connect & Save</button></div>
           {dbMsg && <p className="muted">{dbMsg}</p>}
         </section>
-        <section><h2>Users ({users.length})</h2>
-          {users.map((u) => <div className="row" key={u._id}><span>{u.displayName} - {u.email}</span><span className="pill">{u.roles.join(', ') || 'no role'}</span></div>)}
-          {users.length === 0 && <p className="muted">No users yet.</p>}
+        <section>
+          <div className="sec-head"><h2>Recent Users</h2><input className="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search anything..." /></div>
+          <table className="tbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
+          <tbody>{shown.map((u) => (
+            <tr key={u._id}><td><b>{u.displayName}</b></td><td>{u.email}</td><td>{u.roles.join(', ') || '—'}</td><td><span className="pill ok">Active</span></td></tr>
+          ))}</tbody></table>
+          {shown.length === 0 && <p className="muted">No users yet.</p>}
         </section>
-        <section><h2>Recent audit ({logs.length})</h2>
-          {logs.map((l) => <div className="row" key={l._id}><span>{l.action} {l.entity ?? ''}</span><span className="muted">{new Date(l.createdAt).toLocaleString()}</span></div>)}
+        <section>
+          <div className="sec-head"><h2>Audit Logs</h2></div>
+          <table className="tbl"><thead><tr><th>Action</th><th>Entity</th><th>Time</th></tr></thead>
+          <tbody>{logs.slice(0, 10).map((l) => (
+            <tr key={l._id}><td>{l.action}</td><td>{l.entity ?? '—'}</td><td>{new Date(l.createdAt).toLocaleString()}</td></tr>
+          ))}</tbody></table>
         </section>
       </main>
     </div>
