@@ -16,6 +16,7 @@
     "dev:web": "npm run dev --workspace @auto-present-v2/web",
     "start": "npm run start --workspace @auto-present-v2/api",
     "build": "npm run build --workspaces --if-present",
+    "build:render": "npm run build --workspace @auto-present-v2/shared && npm run build --workspace @auto-present-v2/api && npm run build --workspace @auto-present-v2/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint .",
     "test": "npm run test --workspaces --if-present"

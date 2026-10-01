@@ -10,8 +10,11 @@ export function useTheme(): [Theme, () => void] {
   return [theme, () => setTheme((t) => (t === 'light' ? 'dark' : 'light'))];
 }
 
+// Same-origin by default (single-service deploy). Dev override via VITE_API_BASE_URL.
+const BASE = import.meta.env.VITE_API_BASE_URL ?? '';
+
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`http://localhost:4000${path}`, {
+  const res = await fetch(`${BASE}${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',

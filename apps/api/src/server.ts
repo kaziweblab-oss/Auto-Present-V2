@@ -3,6 +3,8 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import fs from 'node:fs';
+import path from 'node:path';
 import { superAdminRouter } from './super-admin.js';
 import { setupRouter } from './setup.js';
 import { isDbConfigured, readDbUri, connectDb } from './db-config.js';
@@ -20,6 +22,16 @@ app.get('/api/v1/health/ready', (_req, res) => {
 });
 app.use('/api/v1/setup', setupRouter);
 app.use('/api/v1/super-admin', superAdminRouter);
+
+// Single-service deploy (Render): serve the built website from the same process.
+// No separate frontend hosting needed. API routes above take precedence.
+const webDist = path.resolve(process.cwd(), 'apps/web/dist');
+if (fs.existsSync(webDist)) {
+  app.use(express.static(webDist));
+  app.get(/^(?!\/api).*/, (_req, res) => {
+    res.sendFile(path.join(webDist, 'index.html'));
+  });
+}
 
 const PORT = Number(process.env.PORT ?? 4000);
 
