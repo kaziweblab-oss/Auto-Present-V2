@@ -8,6 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { superAdminRouter } from './super-admin.js';
 import { setupRouter } from './setup.js';
+import { principalRouter } from './principal.js';
 import { isDbConfigured, readDbUri, connectDb } from './db-config.js';
 import { User } from './models.js';
 
@@ -23,6 +24,7 @@ app.get('/api/v1/health/ready', (_req, res) => {
 });
 app.use('/api/v1/setup', setupRouter);
 app.use('/api/v1/super-admin', superAdminRouter);
+app.use('/api/v1/principal', principalRouter);
 
 // Single-service deploy (Render): serve the built website from the same process.
 // No separate frontend hosting needed. API routes above take precedence.

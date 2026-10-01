@@ -17,6 +17,7 @@ export const PERMISSIONS = {
   'session.create': ['SUPER_ADMIN','PRINCIPAL'],
   'session.activate': ['PRINCIPAL'],
   'session.close': ['PRINCIPAL'],
+  'session.read': ['SUPER_ADMIN','PRINCIPAL','VICE_PRINCIPAL','CI','TEACHER'],
   'user.manage': ['SUPER_ADMIN'],
   'role.assign': ['SUPER_ADMIN'],
   'audit.read': ['SUPER_ADMIN','PRINCIPAL'],

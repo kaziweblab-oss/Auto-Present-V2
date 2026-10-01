@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema({
 const sessionSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   state: { type: String, enum: ['DRAFT','ACTIVE','CLOSED','ARCHIVED'], default: 'DRAFT' },
+  startDate: { type: Date },
+  endDate: { type: Date },
   // sessionDbKey abstraction: which physical DB holds this session (default primary).
   dbKey: { type: String, default: 'primary' },
 }, { timestamps: true });

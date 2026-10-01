@@ -3,18 +3,11 @@ import type { Response } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
 import { User, AcademicSession, AuditLog, audit } from './models.js';
+import { dbOk } from './db-guard.js';
 import { requireAuth, requirePermission, type AuthedRequest } from './rbac.js';
 
 export const superAdminRouter = Router();
 superAdminRouter.use(requireAuth);
-
-function dbOk(res: Response): boolean {
-  // mongoose readyState: 0 disconnected, 1 connected.
-  // Foundation runs degraded without MongoDB; data routes report 503 instead of hanging.
-  if (mongoose.connection.readyState === 1) return true;
-  res.status(503).json({ success: false, error: { code: 'DB_UNAVAILABLE' } });
-  return false;
-}
 
 // Users + role assignment (SUPER_ADMIN only). Super Admin account itself is seeded later via env.
 superAdminRouter.get('/users', requirePermission('user.manage'), async (_req, res) => {
