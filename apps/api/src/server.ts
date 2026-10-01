@@ -26,10 +26,8 @@ app.use('/api/v1/setup', setupRouter);
 app.use('/api/v1/super-admin', superAdminRouter);
 app.use('/api/v1/principal', principalRouter);
 
-// Single-service deploy (Render): serve the built website from the same process.
-// No separate frontend hosting needed. API routes above take precedence.
-// Resolved from the compiled server file location, NOT process.cwd()
-// (Render may start the process with a different working directory).
+// Single-service deploy: serve the built website from the same process.
+// Resolved from the compiled server file location, NOT process.cwd().
 const serverDir = path.dirname(fileURLToPath(import.meta.url)); // apps/api/dist
 const webDist = [
   path.resolve(serverDir, '../../web/dist'),

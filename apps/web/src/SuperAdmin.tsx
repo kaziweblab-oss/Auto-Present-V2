@@ -24,7 +24,7 @@ export default function SuperAdminPage() {
           try {
             const db = await api<{ current: string | null }>('/api/v1/setup/database');
             setDbCurrent(db.current ?? '');
-          } catch { /* rotations need full DB; ignore */ }
+          } catch { /* needs full DB; ignore */ }
         }
         setUsers(await api<User[]>('/api/v1/super-admin/users'));
         setLogs(await api<Audit[]>('/api/v1/super-admin/audit'));
@@ -48,37 +48,49 @@ export default function SuperAdminPage() {
     <div className="shell">
       <aside className="side">
         <div className="brand"><img src="/app-icon.png" alt="app icon" /><div><b>AUTO PRESENT</b><span>Super Admin</span></div></div>
-        <nav><button className="active">Dashboard</button><button>Users</button><button>Roles & Permissions</button><button>Audit Logs</button><button>Database Setup</button><button>Backup & Restore</button></nav>
+        <nav>
+          <button className="active">Dashboard</button><button>Users</button><button>Roles & Permissions</button>
+          <button>Audit Logs</button><button>Database Setup</button><button>Backup & Restore</button>
+        </nav>
         <button className="theme" onClick={toggleTheme}>{theme === 'light' ? 'Dark mode' : 'Light mode'}</button>
       </aside>
       <main>
+        <div className="crumb">Super Admin / Dashboard</div>
         <h1>System Overview</h1>
         <p className="sub">Welcome back, Super Admin. Seeded later via INITIAL_SUPER_ADMIN_EMAIL (DB-backed).</p>
-        {error && <p className="err">{error} (API running? demo headers?)</p>}
+        {error && <p className="err">{error}</p>}
         <div className="stats">
-          <div className="stat"><small>Total Users</small><h2>{users.length}</h2><span className="tag">in system</span></div>
-          <div className="stat"><small>Total Roles</small><h2>6</h2><span className="tag">RBAC matrix</span></div>
-          <div className="stat"><small>Database</small><h2 style={{ fontSize: 20 }}>{dbConfigured === null ? '…' : dbConfigured ? 'Connected' : 'Setup needed'}</h2><span className="tag">{dbCurrent || 'no uri yet'}</span></div>
-          <div className="stat"><small>Audit Events</small><h2>{logs.length}</h2><span className="tag">recent 200</span></div>
+          <div className="stat"><div className="ic">U</div><div><small>Total Users</small><h2>{users.length}</h2><span className="tag">in system</span></div></div>
+          <div className="stat"><div className="ic">R</div><div><small>Total Roles</small><h2>6</h2><span className="tag">RBAC matrix</span></div></div>
+          <div className="stat"><div className="ic">D</div><div><small>Database</small><h2 style={{ fontSize: 19 }}>{dbConfigured === null ? '…' : dbConfigured ? 'Connected' : 'Setup needed'}</h2><span className="tag">{dbCurrent || 'no uri yet'}</span></div></div>
+          <div className="stat"><div className="ic">A</div><div><small>Audit Events</small><h2>{logs.length}</h2><span className="tag">recent 200</span></div></div>
         </div>
-        <section>
-          <div className="sec-head"><h2>Database Setup</h2></div>
-          {dbConfigured === false && <p>Paste the free MongoDB Atlas connection string below. Saved on this server only, never in env/git.</p>}
-          <div className="dbrow"><input value={dbUri} onChange={(e) => setDbUri(e.target.value)} placeholder="mongodb+srv://..." /><button className="btn" onClick={saveDb}>Connect & Save</button></div>
-          {dbMsg && <p className="muted">{dbMsg}</p>}
-        </section>
-        <section>
-          <div className="sec-head"><h2>Recent Users</h2><input className="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search anything..." /></div>
-          <table className="tbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
-          <tbody>{shown.map((u) => (
-            <tr key={u._id}><td><b>{u.displayName}</b></td><td>{u.email}</td><td>{u.roles.join(', ') || '—'}</td><td><span className="pill ok">Active</span></td></tr>
-          ))}</tbody></table>
-          {shown.length === 0 && <p className="muted">No users yet.</p>}
-        </section>
+        <div className="cols">
+          <section>
+            <div className="sec-head"><h2>Recent Users</h2><input className="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search anything..." /></div>
+            <table className="tbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
+            <tbody>{shown.map((u) => (
+              <tr key={u._id}><td><b>{u.displayName}</b></td><td>{u.email}</td><td>{u.roles.join(', ') || '—'}</td><td><span className="pill ok">Active</span></td></tr>
+            ))}</tbody></table>
+            {shown.length === 0 && <p className="muted">No users yet.</p>}
+          </section>
+          <div>
+            <section>
+              <div className="sec-head"><h2>Quick Actions</h2></div>
+              <div className="qa"><button>+ Add User</button><button>Assign Role</button><button>Database Setup</button><button>Backup Database</button><button>View Audit Logs</button></div>
+            </section>
+            <section>
+              <div className="sec-head"><h2>Database Setup</h2><span className={`pill ${dbConfigured ? 'ok' : 'warn'}`}>{dbConfigured ? 'Connected' : 'SETUP_NEEDED'}</span></div>
+              <p className="muted">Atlas URI — server only, never env/git.</p>
+              <div className="dbrow"><input value={dbUri} onChange={(e) => setDbUri(e.target.value)} placeholder="mongodb+srv://..." /><button className="btn" onClick={saveDb}>Save</button></div>
+              {dbMsg && <p className="muted">{dbMsg}</p>}
+            </section>
+          </div>
+        </div>
         <section>
           <div className="sec-head"><h2>Audit Logs</h2></div>
           <table className="tbl"><thead><tr><th>Action</th><th>Entity</th><th>Time</th></tr></thead>
-          <tbody>{logs.slice(0, 10).map((l) => (
+          <tbody>{logs.slice(0, 8).map((l) => (
             <tr key={l._id}><td>{l.action}</td><td>{l.entity ?? '—'}</td><td>{new Date(l.createdAt).toLocaleString()}</td></tr>
           ))}</tbody></table>
         </section>

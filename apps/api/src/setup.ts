@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { z } from 'zod';
 import type { Request } from 'express';
+import { z } from 'zod';
 import { isDbConfigured, readDbUri, saveDbUri, connectDb } from './db-config.js';
 import { audit } from './models.js';
 import { requireAuth, requirePermission } from './rbac.js';
@@ -21,7 +21,6 @@ setupRouter.post('/database', async (req: Request, res) => {
   if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR' } });
 
   if (isDbConfigured()) {
-    // Rotation path: must be an authenticated Super Admin.
     const id = req.header('x-demo-user-id');
     const roles = (req.header('x-demo-user-roles') ?? '').split(',');
     if (!id || !roles.includes('SUPER_ADMIN')) {

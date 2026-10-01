@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import mongoose from 'mongoose';
 
+// MongoDB URI is NEVER in env. Super Admin provides it once via
+// POST /api/v1/setup/database (dashboard); stored in data/mongo.json (git-ignored).
 const CONFIG_FILE = process.env.DB_CONFIG_FILE ?? path.join(process.cwd(), 'data', 'mongo.json');
 
 export function isDbConfigured(): boolean {
@@ -25,8 +27,7 @@ export function readDbUri(): string | null {
 }
 
 export function saveDbUri(uri: string): void {
-  const dir = path.dirname(CONFIG_FILE);
-  fs.mkdirSync(dir, { recursive: true });
+  fs.mkdirSync(path.dirname(CONFIG_FILE), { recursive: true });
   fs.writeFileSync(CONFIG_FILE, JSON.stringify({ uri }), { mode: 0o600 });
 }
 
