@@ -5,6 +5,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { superAdminRouter } from './super-admin.js';
 import { setupRouter } from './setup.js';
 import { isDbConfigured, readDbUri, connectDb } from './db-config.js';
@@ -25,12 +26,21 @@ app.use('/api/v1/super-admin', superAdminRouter);
 
 // Single-service deploy (Render): serve the built website from the same process.
 // No separate frontend hosting needed. API routes above take precedence.
-const webDist = path.resolve(process.cwd(), 'apps/web/dist');
-if (fs.existsSync(webDist)) {
+// Resolved from the compiled server file location, NOT process.cwd()
+// (Render may start the process with a different working directory).
+const serverDir = path.dirname(fileURLToPath(import.meta.url)); // apps/api/dist
+const webDist = [
+  path.resolve(serverDir, '../../web/dist'),
+  path.resolve(process.cwd(), 'apps/web/dist'),
+].find((p) => fs.existsSync(path.join(p, 'index.html')));
+if (webDist) {
+  console.log(`Serving website from ${webDist}`);
   app.use(express.static(webDist));
   app.get(/^(?!\/api).*/, (_req, res) => {
     res.sendFile(path.join(webDist, 'index.html'));
   });
+} else {
+  console.warn('Website dist not found, running API-only mode');
 }
 
 const PORT = Number(process.env.PORT ?? 4000);
