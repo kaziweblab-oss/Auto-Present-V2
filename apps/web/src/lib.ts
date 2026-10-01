@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
 export function useTheme(): [Theme, () => void] {
-  const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('ap2-theme') as Theme) || 'light');
+  const [theme, setTheme] = useState<Theme>(() => {
+    const saved = localStorage.getItem('ap2-theme') as Theme | null;
+    // Default follows the device (system) theme; manual toggle overrides it afterwards.
+    if (saved === 'light' || saved === 'dark') return saved;
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem('ap2-theme', theme);
