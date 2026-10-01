@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTheme, api } from './lib';
+import { Ic } from './icons';
 
 interface User { _id: string; email: string; displayName: string; roles: string[]; }
 interface Audit { _id: string; action: string; entity?: string; createdAt: string; }
@@ -48,26 +49,35 @@ export default function SuperAdminPage() {
     <div className="shell">
       <aside className="side">
         <div className="brand"><img src="/app-icon.png" alt="app icon" /><div><b>AUTO PRESENT</b><span>Super Admin</span></div></div>
+        <div className="grp">SUPER ADMIN</div>
         <nav>
-          <button className="active">Dashboard</button><button>Users</button><button>Roles & Permissions</button>
-          <button>Audit Logs</button><button>Database Setup</button><button>Backup & Restore</button>
+          <button className="active">{Ic.grid}Dashboard</button>
+          <button>{Ic.users}Users</button>
+          <button>{Ic.shield}Roles & Permissions</button>
+          <button>{Ic.clock}Audit Logs</button>
+          <button>{Ic.db}Database Setup</button>
+          <button>{Ic.save}Backup & Restore</button>
         </nav>
-        <button className="theme" onClick={toggleTheme}>{theme === 'light' ? 'Dark mode' : 'Light mode'}</button>
+        <button className="theme" onClick={toggleTheme}>{theme === 'light' ? 'Light mode' : 'Dark mode'}</button>
       </aside>
       <main>
+        <div className="topbar">
+          <input className="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search anything..." />
+          <div className="avatar"><div className="face">S</div><span>Super Admin</span></div>
+        </div>
         <div className="crumb">Super Admin / Dashboard</div>
         <h1>System Overview</h1>
         <p className="sub">Welcome back, Super Admin. Seeded later via INITIAL_SUPER_ADMIN_EMAIL (DB-backed).</p>
         {error && <p className="err">{error}</p>}
         <div className="stats">
-          <div className="stat"><div className="ic">U</div><div><small>Total Users</small><h2>{users.length}</h2><span className="tag">in system</span></div></div>
-          <div className="stat"><div className="ic">R</div><div><small>Total Roles</small><h2>6</h2><span className="tag">RBAC matrix</span></div></div>
-          <div className="stat"><div className="ic">D</div><div><small>Database</small><h2 style={{ fontSize: 19 }}>{dbConfigured === null ? '…' : dbConfigured ? 'Connected' : 'Setup needed'}</h2><span className="tag">{dbCurrent || 'no uri yet'}</span></div></div>
-          <div className="stat"><div className="ic">A</div><div><small>Audit Events</small><h2>{logs.length}</h2><span className="tag">recent 200</span></div></div>
+          <div className="stat"><div className="ic">{Ic.users}</div><div><small>Total Users</small><h2>{users.length}</h2><span className="tag">in system</span></div></div>
+          <div className="stat"><div className="ic">{Ic.shield}</div><div><small>Total Roles</small><h2>6</h2><span className="tag">RBAC matrix</span></div></div>
+          <div className="stat"><div className="ic">{Ic.db}</div><div><small>Database</small><h2 style={{ fontSize: 19 }}>{dbConfigured === null ? '…' : dbConfigured ? 'Connected' : 'Setup needed'}</h2><span className="tag">{dbCurrent || 'no uri yet'}</span></div></div>
+          <div className="stat"><div className="ic">{Ic.clock}</div><div><small>Audit Events</small><h2>{logs.length}</h2><span className="tag">recent 200</span></div></div>
         </div>
         <div className="cols">
           <section>
-            <div className="sec-head"><h2>Recent Users</h2><input className="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search anything..." /></div>
+            <div className="sec-head"><h2>Recent Users</h2><button className="viewall">View all</button></div>
             <table className="tbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
             <tbody>{shown.map((u) => (
               <tr key={u._id}><td><b>{u.displayName}</b></td><td>{u.email}</td><td>{u.roles.join(', ') || '—'}</td><td><span className="pill ok">Active</span></td></tr>
@@ -88,7 +98,7 @@ export default function SuperAdminPage() {
           </div>
         </div>
         <section>
-          <div className="sec-head"><h2>Audit Logs</h2></div>
+          <div className="sec-head"><h2>Audit Logs</h2><button className="viewall">View all</button></div>
           <table className="tbl"><thead><tr><th>Action</th><th>Entity</th><th>Time</th></tr></thead>
           <tbody>{logs.slice(0, 8).map((l) => (
             <tr key={l._id}><td>{l.action}</td><td>{l.entity ?? '—'}</td><td>{new Date(l.createdAt).toLocaleString()}</td></tr>

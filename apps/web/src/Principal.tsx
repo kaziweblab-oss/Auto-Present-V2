@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTheme, api } from './lib';
+import { Ic } from './icons';
 
 interface Session { _id: string; name: string; state: string; startDate?: string; endDate?: string; }
 interface Overview { sessions: Session[]; usersByRole: { _id: string; n: number }[]; auditCount: number; }
@@ -48,31 +49,41 @@ export default function PrincipalPage() {
   const counts = (st: string) => sessions.filter((s) => s.state === st).length;
   const active = sessions.find((s) => s.state === 'ACTIVE');
   const shown = sessions.filter((s) => s.name.toLowerCase().includes(q.toLowerCase()));
+  const totalUsers = overview ? overview.usersByRole.reduce((a, r) => a + r.n, 0) : null;
 
   return (
     <div className="shell">
       <aside className="side">
         <div className="brand"><img src="/app-icon.png" alt="app icon" /><div><b>AUTO PRESENT</b><span>Principal</span></div></div>
+        <div className="grp">ACADEMIC</div>
         <nav>
-          <button className="active">Academic Sessions</button><button>Overview</button><button>Notices</button>
-          <button>Calendar</button><button>Shift Merge</button><button>Reports</button>
+          <button className="active">{Ic.cal}Academic Sessions</button>
+          <button>{Ic.grid}Overview</button>
+          <button>{Ic.bell}Notices</button>
+          <button>{Ic.book}Calendar</button>
+          <button>{Ic.swap}Shift Merge</button>
+          <button>{Ic.chart}Reports</button>
         </nav>
-        <button className="theme" onClick={toggleTheme}>{theme === 'light' ? 'Dark mode' : 'Light mode'}</button>
+        <button className="theme" onClick={toggleTheme}>{theme === 'light' ? 'Light mode' : 'Dark mode'}</button>
       </aside>
       <main>
+        <div className="topbar">
+          <input className="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search anything..." />
+          <div className="avatar"><div className="face">P</div><span>Super Admin</span></div>
+        </div>
         <div className="crumb">Principal / Academic Sessions</div>
         <h1>Good Morning, Principal</h1>
         <p className="sub">Active session {active ? <b>{active.name}</b> : '— none'}. Only one ACTIVE at a time.</p>
         {error && <p className="err">{error}</p>}
         <div className="stats">
-          <div className="stat"><div className="ic">S</div><div><small>Sessions</small><h2>{sessions.length}</h2><span className="tag">DRAFT→ACTIVE→CLOSED</span></div></div>
-          <div className="stat"><div className="ic">A</div><div><small>Active Session</small><h2 style={{ fontSize: 19 }}>{active?.name ?? '—'}</h2><span className="tag">institute running</span></div></div>
-          <div className="stat"><div className="ic">U</div><div><small>Users</small><h2>{overview ? overview.usersByRole.reduce((a, r) => a + r.n, 0) : '…'}</h2><span className="tag">all roles</span></div></div>
-          <div className="stat"><div className="ic">L</div><div><small>Audit Events</small><h2>{overview?.auditCount ?? '…'}</h2><span className="tag">audited</span></div></div>
+          <div className="stat"><div className="ic">{Ic.cal}</div><div><small>Sessions</small><h2>{sessions.length}</h2><span className="tag">DRAFT→ACTIVE→CLOSED</span></div></div>
+          <div className="stat"><div className="ic">{Ic.clock}</div><div><small>Active Session</small><h2 style={{ fontSize: 19 }}>{active?.name ?? '—'}</h2><span className="tag">institute running</span></div></div>
+          <div className="stat"><div className="ic">{Ic.users}</div><div><small>Users</small><h2>{totalUsers ?? '…'}</h2><span className="tag">all roles</span></div></div>
+          <div className="stat"><div className="ic">{Ic.chart}</div><div><small>Audit Events</small><h2>{overview?.auditCount ?? '…'}</h2><span className="tag">audited</span></div></div>
         </div>
         <div className="cols">
           <section>
-            <div className="sec-head"><h2>Academic Sessions</h2><input className="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search sessions..." /></div>
+            <div className="sec-head"><h2>Academic Sessions</h2><button className="btn sm">+ Create New Session</button></div>
             <table className="tbl"><thead><tr><th>Session</th><th>Status</th><th>Start Date</th><th>End Date</th><th>Actions</th></tr></thead>
             <tbody>{shown.map((s) => (
               <tr key={s._id}>
@@ -89,13 +100,10 @@ export default function PrincipalPage() {
               </tr>
             ))}</tbody></table>
             {shown.length === 0 && <p className="muted">No sessions yet.</p>}
+            <div className="dbrow" style={{ marginTop: 12 }}><input value={name} onChange={(e) => setName(e.target.value)} placeholder="2026-27" /><button className="btn" onClick={create}>Create</button></div>
+            {msg && <p className="muted">{msg}</p>}
           </section>
           <div>
-            <section>
-              <div className="sec-head"><h2>Create Session</h2></div>
-              <div className="dbrow"><input value={name} onChange={(e) => setName(e.target.value)} placeholder="2026-27" /><button className="btn" onClick={create}>+ Create</button></div>
-              {msg && <p className="muted">{msg}</p>}
-            </section>
             <section>
               <div className="sec-head"><h2>Lifecycle</h2></div>
               <div className="rowline"><span>DRAFT</span><span className="pill warn">{counts('DRAFT')}</span></div>
