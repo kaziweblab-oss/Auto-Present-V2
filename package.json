@@ -18,11 +18,12 @@
     "build": "npm run build --workspaces --if-present",
     "build:render": "npm run build --workspace @auto-present-v2/shared && npm run build --workspace @auto-present-v2/api && npm run build --workspace @auto-present-v2/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "lint": "eslint .",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "concurrently": "^9.2.0",
+    "prettier": "^3.3.3",
     "typescript": "^5.9.2"
   }
 }

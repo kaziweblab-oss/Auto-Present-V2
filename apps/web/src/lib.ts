@@ -1,35 +1,47 @@
-import { useEffect, useState } from 'react';
+const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
-export type Theme = 'light' | 'dark';
-export function useTheme(): [Theme, () => void] {
-  // Reference UI is dark-first.
-  const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('ap2-theme') as Theme | null;
-    if (saved === 'light' || saved === 'dark') return saved;
-    return 'dark';
-  });
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem('ap2-theme', theme);
-  }, [theme]);
-  return [theme, () => setTheme((t) => (t === 'light' ? 'dark' : 'light'))];
+function headers(extra: Record<string, string> = {}) {
+  return {
+    "Content-Type": "application/json",
+    "x-demo-user-id": localStorage.getItem("ap2-demo-id") ?? "demo-principal",
+    "x-demo-user-email": localStorage.getItem("ap2-demo-email") ?? "",
+    "x-demo-user-roles": localStorage.getItem("ap2-demo-roles") ?? "PRINCIPAL",
+    ...(localStorage.getItem("ap2-dept-scope")
+      ? {
+          "x-demo-dept-scope": localStorage.getItem("ap2-dept-scope") as string,
+        }
+      : {}),
+    ...extra,
+  };
 }
-
-// Same-origin by default (single-service deploy). Dev override via VITE_API_BASE_URL.
-const BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      'x-demo-user-id': localStorage.getItem('ap2-demo-id') ?? 'demo-super-admin',
-      'x-demo-user-email': localStorage.getItem('ap2-demo-email') ?? '',
-      'x-demo-user-roles': localStorage.getItem('ap2-demo-roles') ?? 'SUPER_ADMIN',
-      ...(init?.headers ?? {}),
-    },
+    headers: headers(init?.headers as never),
   });
-  const body = (await res.json()) as { success: boolean; data: T; error?: { code: string } };
-  if (!body.success) throw new Error(body.error?.code ?? `API ${res.status} ${path}`);
+  const body = (await res.json()) as {
+    success: boolean;
+    data: T;
+    error?: { code: string };
+  };
+  if (!body.success) throw new Error(body.error?.code ?? `API ${res.status}`);
   return body.data;
 }
+
+export type Session = {
+  _id: string;
+  name: string;
+  state: "DRAFT" | "ACTIVE" | "CLOSED" | "ARCHIVED";
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
+};
+
+export type Me = {
+  id: string;
+  email: string;
+  roles: string[];
+  departmentScope: string | null;
+  permissions: string[];
+};

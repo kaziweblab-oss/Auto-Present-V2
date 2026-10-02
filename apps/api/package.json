@@ -1,1 +1,30 @@
-{"name":"@auto-present-v2/api","version":"2.0.0","type":"module","scripts":{"dev":"tsx watch src/server.ts","start":"node dist/server.js","build":"tsc -p tsconfig.json","typecheck":"tsc --noEmit -p tsconfig.json","test":"vitest run"},"dependencies":{"express":"^5.1.0","mongoose":"^8.18.0","zod":"^4.1.0","jose":"^6.0.0","helmet":"^8.1.0","cors":"^2.8.5","express-rate-limit":"^8.1.0","winston":"^3.17.0","dotenv":"^17.2.0"},"devDependencies":{"tsx":"^4.20.0","typescript":"^5.9.2","vitest":"^3.2.0","@types/express":"^5.0.3","@types/node":"^24.0.0","@types/cors":"^2.8.19"}}
+{
+  "name": "@auto-present-v2/api",
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "migrate": "tsx src/migrate.ts"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.1.0",
+    "mongoose": "^8.18.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.0"
+  }
+}
